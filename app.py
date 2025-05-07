@@ -10,6 +10,8 @@ from datetime import datetime, timedelta
 from functools import wraps
 import logging
 import requests
+from waitress import serve
+from app import app
 
 app = Flask(__name__)
 CORS(app)
@@ -100,4 +102,5 @@ def translate():
     return jsonify({"bot_response": bot_response})
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 8080)))
+    port = int(os.getenv("PORT", 8080))  # Use the environment variable for the port
+    serve(app, host="0.0.0.0", port=port)
