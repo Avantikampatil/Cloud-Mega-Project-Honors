@@ -1,0 +1,27 @@
+# Python bytecode files
+*.pyc
+__pycache__/
+
+# Flask instance folder
+instance/
+
+# Virtual environment folder
+venv/
+env/
+
+# .env file for storing sensitive information
+.env
+
+# IDE specific folders (VSCode, PyCharm)
+.vscode/
+.idea/
+
+# Test coverage directory
+.pytest_cache/
+
+# Logs
+*.log
+
+# Database files (SQLite, etc.)
+*.db
+*.sqlite
