@@ -1,0 +1,131 @@
+/* static/styles.css */
+
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.lmarg20{
+    margin-right: 11px;
+}
+.msger {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    margin: auto;
+}
+
+.msger-header {
+    background: #25D366;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 20px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.msger-header-title {
+    font-size: 20px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+}
+
+.msger-header-options {
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.msger-chat {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 20px;
+    background-color: #f0f0f0;
+}
+
+.msg {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: flex-end;
+}
+
+.msg-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-size: cover;
+}
+
+.msg-bubble {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    max-width: 70%;
+}
+
+.msg-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    color: #888;
+}
+
+.msg-info-name {
+    font-weight: bold;
+}
+
+.msg-info-time {
+    font-size: 12px;
+}
+
+.msg-text {
+    margin-top: 5px;
+}
+
+.msger-inputarea {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    padding: 10px;
+    box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.msger-input {
+    flex-grow: 1;
+    padding: 8px;
+    border: none;
+    border-radius: 5px;
+    margin-right: 10px;
+}
+
+.msger-send-btn {
+    background-color: #25D366;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 15px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+}
+
+.right-msg{
+    flex-direction: row-reverse;
+}
+
+.msger-send-btn:hover {
+    background-color: #128C7E;
+}
+
+/* Responsive styles for small screens */
+@media screen and (max-width: 600px) {
+    .msger-header-options {
+        font-size: 16px;
+    }
+
+    .msg-bubble {
+        max-width: 80%;
+    }
+}

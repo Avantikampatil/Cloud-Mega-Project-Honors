@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Regional ChatBot</title>
+  <link rel="stylesheet" href="../static/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css">
+</head>
+
+<body>
+
+  <section class="msger">
+    <header class="msger-header">
+      <div class="msger-header-title">
+        <img src="/static/marathi2.png" alt="  " width="20px"> Regional ChatBot
+      </div>
+      <!-- <div class="msger-header-options">
+        <span><i class="fas fa-cog"></i></span>
+      </div> -->
+    </header>
+
+    <main class="msger-chat" id="chat-messages">
+      <div class="msg left-msg">
+        <div class="msg-img" style="background-image: url(https://image.flaticon.com/icons/svg/327/327779.svg)"></div>
+        <div class="msg-bubble">
+          <div class="msg-info">
+            <div class="msg-info-name">BOT</div>
+          </div>
+          <div class="msg-text">
+            हाय, चॅट बॉटमध्ये स्वागत आहे! पुढे जा आणि मला एक संदेश पाठवा. 😄
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <form class="msger-inputarea" onsubmit="sendMessage(event)">
+      <input type="text" id="user-message" class="msger-input" placeholder="Enter your message...">
+      <button type="button" onclick="speak()" class="msger-send-btn" style="margin-right: 8px;">
+        <i class="fas fa-volume-up"></i>
+      </button>
+      <button type="button" onclick="startListening()" class="msger-send-btn" style="margin-right: 8px;">
+        <i class="fas fa-microphone"></i>
+      </button>
+      <button type="submit" class="msger-send-btn">Send</button>
+    </form>
+
+    <script>
+      let latestBotResponse = '';
+      let marathiVoice = null;
+
+      // Load voices and select a Marathi voice
+      function getMarathiVoice() {
+        const voices = window.speechSynthesis.getVoices();
+        // Prioritize voices with 'mr-IN' language, preferring Google or native voices
+        marathiVoice = voices.find(voice => voice.lang === 'mr-IN' && (voice.name.includes('Google') || voice.name.includes('Native'))) ||
+                      voices.find(voice => voice.lang === 'mr-IN') || // Fallback to any mr-IN voice
+                      voices.find(voice => voice.lang.startsWith('hi-IN')); // Fallback to Hindi as a similar Indian accent
+        return marathiVoice;
+      }
+
+      // Ensure voices are loaded before speaking
+      window.speechSynthesis.onvoiceschanged = () => {
+        getMarathiVoice();
+      };
+
+      function sendMessage(event) {
+        event.preventDefault();
+        var userMessageInput = document.getElementById('user-message');
+        var userMessage = userMessageInput.value.trim();
+        if (!userMessage) return;
+
+        var userMessageElement = createUserMessageElement(userMessage);
+        var chatMessages = document.getElementById('chat-messages');
+        chatMessages.appendChild(userMessageElement);
+
+        fetch("http://127.0.0.1:5000/translate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ user_message: userMessage }),
+        })
+        .then((response) => response.json())
+        .then((data) => {
+          latestBotResponse = data.bot_response; // Store latest bot response
+          var botMessageElement = createBotMessageElement(data.bot_response);
+          chatMessages.appendChild(botMessageElement);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+
+        userMessageInput.value = '';
+      }
+
+      function createUserMessageElement(message) {
+        return createMessageElement('right-msg', 'You', message);
+      }
+
+      function createBotMessageElement(message) {
+        return createMessageElement('left-msg', 'BOT', message);
+      }
+
+      function createMessageElement(className, sender, message) {
+        var now = new Date();
+        var time = now.getHours() + ':' + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes();
+        var msgDiv = document.createElement('div');
+        msgDiv.className = 'msg ' + className;
+        msgDiv.innerHTML = `
+          <div class="msg-img" style="background-image: url(https://image.flaticon.com/icons/svg/327/327779.svg)"></div>
+          <div class="msg-bubble">
+            <div class="msg-info">
+              <div class="msg-info-name">${sender}</div>
+              <div class="msg-info-time">${time}</div>
+            </div>
+            <div class="msg-text">${message}</div>
+          </div>
+        `;
+        return msgDiv;
+      }
+
+      function speak() {
+        if (!('speechSynthesis' in window)) {
+          alert("Your browser doesn't support text-to-speech. Try Chrome or Edge.");
+          return;
+        }
+        if (!latestBotResponse) {
+          alert("No bot response available to read.");
+          return;
+        }
+        // Ensure voices are loaded
+        if (!marathiVoice) {
+          marathiVoice = getMarathiVoice();
+        }
+        var utterance = new SpeechSynthesisUtterance(latestBotResponse);
+        utterance.lang = 'mr-IN'; // Marathi language
+        if (marathiVoice) {
+          utterance.voice = marathiVoice; // Use selected Marathi voice
+        }
+        utterance.rate = 1; // Normal speed
+        utterance.pitch = 1; // Normal pitch
+        window.speechSynthesis.speak(utterance);
+      }
+
+      function startListening() {
+        if (!('webkitSpeechRecognition' in window)) {
+          alert("Your browser doesn't support speech recognition. Try Chrome.");
+          return;
+        }
+
+        var recognition = new webkitSpeechRecognition();
+        recognition.lang = 'en-US'; // Change if needed
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        recognition.start();
+
+        recognition.onresult = function (event) {
+          var transcript = event.results[0][0].transcript;
+          document.getElementById('user-message').value = transcript;
+          document.querySelector('.msger-inputarea').dispatchEvent(new Event('submit'));
+        };
+
+        recognition.onerror = function (event) {
+          console.error("Speech recognition error", event.error);
+        };
+      }
+    </script>
+  </section>
+
+</body>
+</html>
